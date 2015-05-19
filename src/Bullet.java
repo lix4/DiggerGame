@@ -1,8 +1,3 @@
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 
 /**
@@ -11,19 +6,16 @@ import javax.imageio.ImageIO;
  * @author XIWEN LI.
  *         Created May 14, 2015.
  */
-public class Bullet {
-	public BufferedImage Bullet;
-	public int x;
-	public int y;
-	
+public class Bullet extends UpdatedEntity {
+	private static final long serialVersionUID = 1L;
+
 	public Bullet(int x, int y){
-		this.x = x;
-		this.y = y;
-		String bulletLocation = "src/Money_Bag.jpg;";
-		try{
-			Bullet = ImageIO.read(new File(bulletLocation));
-		}catch (IOException e){
-			System.out.println("Could not open picture file:" + bulletLocation);
-		}
+		super(x, y, "src/Money_Bag.jpg;");
+	}
+
+	@Override
+	public void update() {
+		// TODO Auto-generated method stub.
+		
 	} 
 }

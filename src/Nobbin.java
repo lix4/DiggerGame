@@ -1,16 +1,14 @@
-
-
 /**
  * TODO Put here a description of what this class does.
  *
- * @author XIWEN LI.
- *         Created May 5, 2015.
+ * @author lix4.
+ *         Created May 14, 2015.
  */
-public class Hero extends UpdatedEntity {
+public class Nobbin extends UpdatedEntity{
 	private static final long serialVersionUID = 1L;
 
-	public Hero(Level level, int xLoc, int yLoc){
-		super(level, xLoc, yLoc, "src/hero.jpg");	
+	public Nobbin(Level level, int x,int y){
+		super(level, x, y, "src/zb001.gif");
 	}
 
 	@Override
@@ -18,6 +16,4 @@ public class Hero extends UpdatedEntity {
 		// TODO Auto-generated method stub.
 		
 	}
-	
-	
 }
