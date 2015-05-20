@@ -14,8 +14,9 @@ public class Entity extends JPanel {
 	protected Point location;
 	protected BufferedImage image;
 	protected Level level;
-	
-	public Entity(Level level, int xLocation, int yLocation, String fileLocation)
+
+	//Not sure what to do with level arry. Do we need to pass level as well or not?
+	public Entity(Level level, int yLocation, int xLocation, String fileLocation)
 	{
 		this.level = level;
 		this.location = new Point(xLocation, yLocation);
