@@ -15,7 +15,7 @@ public class Entity extends JPanel {
 	protected BufferedImage image;
 	protected Level level;
 	
-	public Entity(Level level, int yLocation, int xLocation, String fileLocation)
+	public Entity(Level level, int xLocation, int yLocation, String fileLocation)
 	{
 		this.level = level;
 		this.location = new Point(xLocation, yLocation);
@@ -23,7 +23,7 @@ public class Entity extends JPanel {
 			this.image = ImageIO.read(new File(fileLocation));
 		}catch (IOException e){
 			System.out.println("Could not open picture file:" + fileLocation);
-		} 
+		}
 	}
 	
 	
@@ -31,6 +31,6 @@ public class Entity extends JPanel {
 	@Override
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
-		g.drawImage(this.image, this.location.y, this.location.x + Level.SCORE_BAR, null);
+		g.drawImage(this.image, this.location.x, this.location.y + Level.SCORE_BAR, null);
 	}
 }

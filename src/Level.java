@@ -1,4 +1,4 @@
-import java.awt.Color;
+
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -9,7 +9,7 @@ import java.util.Scanner;
 
 import javax.swing.JPanel;
 
-public class Level extends JPanel implements KeyListener {
+public class Level extends JPanel implements KeyListener{
 	public static final int SCORE_BAR = 100;
 	public File levelFile;
 	private int[][] map;
@@ -17,29 +17,49 @@ public class Level extends JPanel implements KeyListener {
 	int scanInt;
 	private Hero h;
 	private Emerald e;
-	private Nobbin m;
-	public int a = 0;
-	public int b = 0;
+	private Nobbin n;
+	private Bomb bomb;
+	public int a = 9;
+	public int b = 7;
 	private int score = 0;
+	static final int DIRT = 1;
+	static final int EMERALD = 2;
+	static final int MONSTER = 3;
+	static final int Bomb = 4;
+	static final int R = 1;
+	static final int L = 2;
+	static final int U = 3;
+	static final int D = 4;
+	static final int NONE = 0;
+	private int move = 0;
+	private int lastkey = 0;
+	private int keypressed = 0;
+	private boolean firstkey = false;
 	
 	ArrayList<UpdatedEntity> entities = new ArrayList<UpdatedEntity>();
-
+//	private int bulletmove;
+//	private int spacecount = 0;
+	
 	public Level() {
-
-		//ArrayList<UpdatedEntity> entities = new ArrayList<UpdatedEntity>();
-		//this.h = new Hero();
-		//this.h.addKeyListener(this);
+		
+//		String heroLocation = "src/DiggerGame/zb001.gif";
+//		try{
+//			hero = ImageIO.read(new File(heroLocation));
+//		}catch (IOException e){
+//			System.out.println("Could not open picture file:" + heroLocation);
+//		}
+//		this.x = 420;
+//		this.y = 640;
+		
+		this.h.addKeyListener(this);
 		this.LevelC = new LevelControl();
 		this.levelFile = this.LevelC.levelFiles.get(this.LevelC.current);
 		System.out.println(this.levelFile);
 		getMap();
-		//entities.add(h);
-		
-		GameThread thread = new GameThread(entities);
-		thread.start();
 	}
-
-	public void getMap() {
+	
+	
+	public void getMap(){
 		Scanner scan = null;
 		try {
 			scan = new Scanner(this.levelFile);
@@ -48,161 +68,444 @@ public class Level extends JPanel implements KeyListener {
 			exception.printStackTrace();
 		}
 		this.map = new int[10][15];
-		for (int i = 0; i < 10; i++) {
-			for (int j = 0; j < 15; j++) {
+		for(int i = 0; i < 10; i++){
+			for(int j = 0; j < 15; j++){
 				this.scanInt = scan.nextInt();
 				this.map[i][j] = this.scanInt;
-				if (this.map[i][j] == 3)
-				{
-					this.entities.add(new Hobbin(this, j * 60, i * 60));
 				}
-				else if (this.map[i][j] == 4)
-				{
-					this.entities.add(new Nobbin(this, j * 60, i * 60));
+			}
+		scan.close();
+		}
+
+	
+	@Override
+	public void paintComponent(Graphics g){
+		super.paintComponent(g);
+		for(int i = 0; i < 10; i++){
+			for(int j = 0; j < 15; j++){
+				if(this.map[i][j] == DIRT){
+					Dirt d = new Dirt(j*60, 100+i*60);
+					d.paintComponent(g);
 				}
-				else if (this.map[i][j] == 9)
-				{
-					h = new Hero(this, i * 60, j * 60);
-					this.h.addKeyListener(this);
+				if(this.map[i][j] == EMERALD){
+					this.e = new Emerald(this, j*60, i*60);
+//					this.e.paintComponent(g);
+				}
+				if(this.map[i][j] == MONSTER){
+					this.n = new Nobbin(this, j*60, i*60);
+//					this.n.paintComponent(g);
+				}
+				if(this.map[i][j] == Bomb){
+					bomb = new Bomb(this, j*60, i*60);
+//					bomb.paintComponent(g);
+				}
+				if(this.map[i][j] == 9){
+					this.h = new Hero(this, j*60, i*60);
 					this.entities.add(h);
-					reseth();
 				}
 			}
 		}
-		scan.close();
+//		if(spacecount != 0){
+//			g.drawImage(this.bullet.Bullet,this.bullet.x,this.bullet.y,null);
+//		}
 	}
-
-	@Override
-	public void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		for (int i = 0; i < 10; i++) {
-			for (int j = 0; j < 15; j++) {
-				if (this.map[i][j] == 1) {
-					Dirt d = new Dirt(this, j * 60, i * 60);
-					d.paintComponent(g);
+	
+	
+	public void reseth(){
+		this.h.x = 420;
+		this.h.y = 640;
+		this.a = 9;
+		this.b = 7;
+		this.move = 0;
+	}
+	
+	
+	public void finishmoving(){
+		
+		if(this.lastkey == R){
+			if(this.move % 60 != 0){
+				if(this.keypressed != L){
+					if(this.move % 60 != 0){
+						if(this.h.x < 840){
+							this.h.x += 5;
+							this.move += 5;
+							this.lastkey = R;
+						}
+					}
+					else{
+						this.move = 0;
+						this.lastkey = this.keypressed;
+					}
 				}
-				if (this.map[i][j] == 2) {
-					Dirt d = new Dirt(this, j * 60, i * 60);
-					d.paintComponent(g);
-					this.e = new Emerald(this, j * 60, i * 60);
-					this.e.paintComponent(g);
-					this.e.setBackground(new Color(0, 0, 0, 0));
+				else{
+					this.move = this.move % 60;
+					if(this.move != 0){
+						this.h.x -= 5;
+						this.move -= 5;
+						this.lastkey = R;
+					}
+					else{
+						this.lastkey = L;
+						this.b --;
+						System.out.println("b--, b = " + this.b);
+//						return;
+					}
 				}
-//				if (this.map[i][j] == 3) {
-//					this.m = new Nobbin(this, j * 60, i * 60);
-//					this.m.paintComponent(g);
-//				}
+			}
+			else{
+				this.lastkey = this.keypressed;
 			}
 		}
 		
-		for (UpdatedEntity entity : entities)
-		{
-			entity.paintComponent(g);
+		
+		if(this.lastkey == L){
+			if(this.move % 60 != 0){
+				if(this.keypressed != R){
+					if(this.move % 60 != 0){
+						if(this.h.x > 0){
+							this.h.x -= 5;
+							this.move += 5;
+							this.lastkey = L;
+						}
+					}
+					else{
+						this.move = 0;
+						this.lastkey = this.keypressed;
+					}
+				}
+				else{
+					this.move = this.move % 60;
+					if(this.move != 0){
+						this.h.x += 5;
+						this.move -= 5;
+						this.lastkey = L;
+					}
+					else{
+						
+						this.b ++;
+						System.out.println("b++" + this.b);
+						this.lastkey = R;
+//						return;
+					}
+				}
+			}
+			else{
+				this.lastkey = this.keypressed;
+			}
 		}
-		//h.paintComponent(g);
-		// g.drawImage(this.h.hero, this.h.x, this.h.y, null);
+		
+		
+		if(this.lastkey == U){
+			if(this.move % 60 != 0){
+				if(this.keypressed != D){
+					if(this.move % 60 != 0){
+						if(this.h.y > 0){
+							this.h.y -= 5;
+							this.move += 5;
+							this.lastkey = U;
+						}
+					}
+					else{
+						this.move = 0;
+						this.lastkey = this.keypressed;
+					}
+				}
+				else{
+					this.move = this.move % 60;
+					if(this.move != 0){
+						this.h.y += 5;
+						this.move -= 5;
+						this.lastkey = U;
+					}
+					else{
+						this.lastkey = D;
+						this.a ++;
+						System.out.println("a++" + this.a);
+//						return;
+					}
+				}
+			}
+			else{
+				this.lastkey = this.keypressed;
+			}
+		}
+		
+		
+		if(this.lastkey == D){
+			if(this.move % 60 != 0){
+				if(this.keypressed != U){
+					if(this.move % 60 != 0){
+						if(this.h.y < 700){
+							this.h.y += 5;
+							this.move += 5;
+							this.lastkey = D;
+						}
+					}
+					else{
+						this.move = 0;
+						this.lastkey = this.keypressed;
+					}
+				}
+				else{
+					this.move = this.move % 60;
+					if(this.move != 0){
+						this.h.y -= 5;
+						this.move -= 5;
+						this.lastkey = D;
+					}
+					else{
+						this.lastkey = U;
+						this.a --;
+						System.out.println("a--" + this.a);
+//						return;
+					}
+				}
+			}
+			else{
+				this.lastkey = this.keypressed;
+			}
+		}
 	}
-
-	public void reseth() {
-		h.location.x = 0;
-		h.location.y = 0;
-		a = h.location.x / 60;
-		b = h.location.y / 60;
-	}
+	
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-			if (b < 14) {
-				if (map[a][b + 1] == 3) {
-					reseth();
-					repaint();
-					return;
-				}
-				this.h.location.x = this.h.location.x + 60;
-				if (map[a][b + 1] == 2) {
-					score += 100;
-				}
-				map[a][b + 1] = 0;
-				b++;
+		
+		if (e.getKeyCode() == KeyEvent.VK_RIGHT){
+			System.out.println("Right");
+			if(this.firstkey == false){
+				this.lastkey = R;
+				this.firstkey = true;
 			}
-		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-			if (b > 0) {
-				if (map[a][b - 1] == 3) {
-					reseth();
-					repaint();
-					return;
-				}
-				this.h.location.x = this.h.location.x - 60;
-				map[a][b - 1] = 0;
-				if (map[a][b - 1] == 2) {
-					score += 100;
-				}
-				map[a][b - 1] = 0;
-				b--;
+			this.keypressed = R;
+			if(this.lastkey != R){
+				finishmoving();
 			}
-		} else if (e.getKeyCode() == KeyEvent.VK_UP) {
-			if (a > 0) {
-				if (map[a - 1][b] == 3) {
-					reseth();
-					repaint();
-					return;
+			else if(this.lastkey == R){
+				if(this.h.x < 840){
+					this.h.x = this.h.x + 5;
 				}
-				this.h.location.y = this.h.location.y - 60;
-				if (map[a - 1][b] == 2) {
-					score += 100;
+				if(this.b < 14){	
+					this.move += 5;
+					if(this.map[this.a][this.b+1] == MONSTER){
+						reseth();
+						repaint();
+						return;
+					}
+					if(this.move % 60 == 5){
+						if(this.map[this.a][this.b+1] == EMERALD){
+							this.score += 100;
+						}
+						this.map[this.a][this.b+1] = 0;
+						this.b++;
+					}
 				}
-				map[a - 1][b] = 0;
-				a--;
-			}
-		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-			if (a < 9) {
-				if (map[a + 1][b] == 3) {
-					reseth();
-					repaint();
-					return;
-				}
-				this.h.location.y = this.h.location.y + 60;
-				if (map[a + 1][b] == 2) {
-					score += 100;
-				}
-				map[a + 1][b] = 0;
-				a++;
+				this.lastkey = R;
 			}
 		}
-		if (e.getKeyCode() == KeyEvent.VK_U) {
-			if (LevelC.current < 2) {
-				LevelC.current++;
-				this.levelFile = this.LevelC.levelFiles
-						.get(this.LevelC.current);
+		
+		
+		else if (e.getKeyCode() == KeyEvent.VK_LEFT){
+			System.out.println("Left");
+			if(this.firstkey == false){
+				this.lastkey = L;
+				this.firstkey = true;
+			}
+			this.keypressed = L;
+			if(this.lastkey != L){
+				finishmoving();
+			}
+			else if(this.lastkey == L){
+				if(this.h.x > 0){
+					this.h.x = this.h.x - 5;
+				}
+				if(this.b > 0){
+					this.move += 5;
+//					if(this.map[this.a][this.b-1] == MONSTER){
+//						reseth();
+//						repaint();
+//						return;
+//					}
+					if(this.move % 60 == 5){
+						if(this.map[this.a][this.b-1] == MONSTER){
+							reseth();
+							repaint();
+							return;
+						}
+						else{
+							if(this.map[this.a][this.b-1] == EMERALD){
+								this.score += 100;
+							}
+							this.map[this.a][this.b-1] = 0;
+							this.b--;
+						}
+					}
+				}
+				this.lastkey = L;
+			}
+		}
+		
+		
+		else if (e.getKeyCode() == KeyEvent.VK_UP){
+			System.out.println("Up");
+			if(this.firstkey == false){
+				this.lastkey = U;
+				this.firstkey = true;
+			}
+			this.keypressed = U;
+			if(this.lastkey != U){
+				finishmoving();
+			}
+			else if(this.lastkey == U){
+				if(this.h.y > 100){
+					this.h.y = this.h.y - 5;
+				}
+				if(this.a > 0){
+					this.move += 5;
+					if(this.map[this.a-1][this.b] == MONSTER){
+						reseth();
+						repaint();
+						return;
+					}
+					if(this.move % 60 == 5){
+						if(this.map[this.a-1][this.b] == EMERALD){
+							this.score += 100;
+						}
+						this.map[this.a-1][this.b] = 0;
+						this.a--;
+					}
+				}
+				this.lastkey = U;
+			}
+		}
+		
+		
+		else if (e.getKeyCode() == KeyEvent.VK_DOWN){
+			System.out.println("Down");
+			if(this.firstkey == false){
+				this.lastkey = D;
+				this.firstkey = true;
+			}
+			this.keypressed = D;
+			if(this.lastkey !=D){
+				finishmoving();
+			}
+			else if(this.lastkey == D){
+				if(this.a < 9){
+					this.move += 5;
+					if(this.map[this.a+1][this.b] == MONSTER){
+						reseth();
+						repaint();
+						return;
+					}
+					this.h.y = this.h.y + 5;
+					if(this.move % 60 == 5){
+						if(this.map[this.a+1][this.b] == EMERALD){
+							this.score += 100;
+						}
+						this.map[this.a+1][this.b] = 0;
+						this.a++;
+					}
+				}
+				this.lastkey = D;
+			}
+		}
+		
+		
+		if (e.getKeyCode() == KeyEvent.VK_U){
+			if(this.LevelC.current < 2){
+				this.lastkey = 0;
+				this.keypressed = 0;
+				this.firstkey = false;
+				this.LevelC.current++;
+				this.levelFile = this.LevelC.levelFiles.get(this.LevelC.current);
 				getMap();
 				reseth();
 				repaint();
 			}
-		} else if (e.getKeyCode() == KeyEvent.VK_D) {
-			if (LevelC.current > 0) {
-				LevelC.current--;
-				this.levelFile = this.LevelC.levelFiles
-						.get(this.LevelC.current);
+		}
+		
+		
+		else if (e.getKeyCode() == KeyEvent.VK_D){
+			if(this.LevelC.current > 0){
+				this.lastkey = 0;
+				this.keypressed = 0;
+				this.firstkey = false;
+				this.LevelC.current--;
+				this.levelFile = this.LevelC.levelFiles.get(this.LevelC.current);
 				getMap();
 				reseth();
 				repaint();
 			}
+		}
+		
+		if (e.getKeyCode() == KeyEvent.VK_SPACE){
+			if(this.lastkey == R){
+				this.map[this.a][this.b-1] = 4;
+			}
+			else if(this.lastkey == L){
+				this.map[this.a][this.b+1] = 4;
+			}
+			else if(this.lastkey == U){
+				this.map[this.a+1][this.b] = 4;
+			}
+			else if(this.lastkey == D){
+				this.map[this.a-1][this.b] = 4;
+			}
+			repaint();
+//			spacecount ++;
+//			this.bullet = new Bullet();
+//			if (this.bulletmove == R){
+//				System.out.println("move right");
+//				while (this.bullet.x < 840){
+//					this.bullet.x = this.bullet.x + 20;
+//					repaint();
+//				}
+//			}
+//			else if (this.bulletmove == L){
+//				System.out.println("move left");
+//				while (this.bullet.x > 0){
+//					this.bullet.x = this.bullet.x - 20;
+//					repaint();
+//				}
+//			}
+//			else if (this.bulletmove == U){
+//				System.out.println("move up");
+//				while (this.bullet.y > 100){
+//					this.bullet.y = this.bullet.y - 60;
+//					repaint();
+//				}	
+//			}
+//			else if (this.bulletmove == D){
+//				System.out.println("move down");
+//				while (this.bullet.y < 640){
+//					this.bullet.y = this.bullet.y + 20;
+//					repaint();
+//				}	
+//			}
 		}
 
+		
 		repaint();
-		System.out.println(score);
+		System.out.println("move = " + this.move);
+		System.out.println("a = "+ this.a + " b = "+ this.b);
+		System.out.println("x = "+ this.h.x + " y = "+ this.h.y);
+		System.out.println("lastkey = " + this.lastkey);
+		System.out.println(this.map[a][b]);
+		System.out.println();
+		
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
 		// TODO Auto-generated method stub.
+
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub.
-
+		
 	}
-
+	
 }

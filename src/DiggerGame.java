@@ -1,4 +1,5 @@
 
+
 import java.awt.Container;
 
 import javax.swing.JFrame;
@@ -7,7 +8,6 @@ import javax.swing.JFrame;
 public class DiggerGame extends JFrame{
 
 	private Level level;
-	private MainPanel mainPanel;
 	
 	public DiggerGame(){
 		Container pane = this.getContentPane();

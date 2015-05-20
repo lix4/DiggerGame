@@ -8,7 +8,7 @@ public class Nobbin extends UpdatedEntity{
 	private static final long serialVersionUID = 1L;
 
 	public Nobbin(Level level, int x,int y){
-		super(level, x, y, "src/zb001.gif");
+		super(level, x, y, "src/monster.jpg");
 	}
 
 	@Override
