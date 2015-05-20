@@ -32,6 +32,6 @@ public class Entity extends JPanel {
 	@Override
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
-		g.drawImage(this.image, this.location.x, this.location.y + Level.SCORE_BAR, null);
+		g.drawImage(this.image, this.location.y, this.location.x + Level.SCORE_BAR, null);
 	}
 }
